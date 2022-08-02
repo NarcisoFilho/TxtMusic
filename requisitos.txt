@@ -11,6 +11,7 @@ Operações
     • Pausar Melodia: Função disponível enquanto uma melodia está executando. Seu botão de acionamento é o mesmo de “Executar Melodia”, porém com layout ajustado. Ao ser acionado a execução da melodia é interrompida, podendo ser retomada a qualquer momento do ponto de interrupção.
     • Parar Melodia: Botão ao lado do usado por “Executar Melodia”/”Pausar Melodia”. Interrompe a melodia e reinicia o interpretador.
     • Botões de fechar, maximizar e minimizar a janela. Todos localizados no canto superior direito da tela
+    • Mecanismo de ajustar volume do áudio
     • Enquanto a música está em execução ou pausada o editor se mantém bloqueado
     • Enquanto o arquivo está sendo salvo o editor se mantém bloqueado
     • O software será feito usando a linguagem Java e o paradigma de programação orientada a objetos
