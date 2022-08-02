@@ -1,15 +1,21 @@
 TxtMusic
-Introdução
+Requisitos
 	TxtMusic é um sintetizador de música que tem como entrada um texto, qual seja, uma sequência de caracteres ASCII. Cada caractere é decodificado em uma nota musical ou um sinal de controle sobre o timbre, cadência, intensidade, ou outro atributo da melodia em execução. O mapeamento dos caracteres ASCII pode ser consultado abaixo juntamente com a descrição dos requisitos do software, entre elas os funcionais, relativo à funcionalidade, e também os não-funcionais.
 
 Operações
-    • Carregar arquivo: A priori somente no formato .txt. O arquivo poderá ser selecionado através de um explorador de arquivos.
+    • Carregar arquivo: A priori no formato arquivo de texto. O arquivo poderá ser selecionado através de um explorador de arquivos.
     • Carregar arquivos por arraste: Variação do item anterior. A diferença é que um arquivo pode ser carregado com a mecânica “arrastar-soltar”, do sistema de arquivos do usuário para o programa.
     • Editar texto: O programa terá um editor de texto embutido, onde se pode alterar o conteúdo de um texto ou mesmo criar um texto do zero.
-    • Salvar texto: Função de salvar texto editor pelo editor embarcado, com janela de verificação em caso de possível Overwrite.
+    • Salvar texto: Função de salvar texto pelo editor embarcado, com janela de verificação em caso de possível Overwrite.
     • Executar Melodia: Um botão que quando ativado faz o programa interpretar o texto da “janela ativa”(definida mais adiante) , termo a termo, executando uma melodia. O mapeamento dos termos feito pelo parser é detalhado mais a frente.
     • Pausar Melodia: Função disponível enquanto uma melodia está executando. Seu botão de acionamento é o mesmo de “Executar Melodia”, porém com layout ajustado. Ao ser acionado a execução da melodia é interrompida, podendo ser retomada a qualquer momento do ponto de interrupção.
     • Parar Melodia: Botão ao lado do usado por “Executar Melodia”/”Pausar Melodia”. Interrompe a melodia e reinicia o interpretador.
-    • 
+    • Botões de fechar, maximizar e minimizar a janela. Todos localizados no canto superior direito da tela
+    • Enquanto a música está em execução ou pausada o editor se mantém bloqueado
+    • Enquanto o arquivo está sendo salvo o editor se mantém bloqueado
+    • O software será feito usando a linguagem Java e o paradigma de programação orientada a objetos
+    • Será necessário um mês de trabalho para sua implementação, que será feita por uma equipe de 4 estudantes
+    • O programa deverá ser rápido, sem apresentar travamentos, ou longos períodos de tempo carregamento
+    • A interface deverá ser intuitiva para os usuários
 
 
