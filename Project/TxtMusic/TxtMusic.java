@@ -8,7 +8,7 @@ public class TxtMusic {
         TxtEditor text = new TxtEditor();
         MusicPlayer music = new MusicPlayer();        
 
-        String path = "C:\\Users\\lucca\\Desktop\\main\\UFRGS\\TCP\\Project\\teste.txt";
+        String path = "..\\Project\\teste.txt";
         text.loadTxtFile(path);
         String content = text.getContent();
         music.play(content);        
