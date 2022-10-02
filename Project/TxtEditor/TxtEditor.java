@@ -40,7 +40,7 @@ public class TxtEditor {
         Scanner in = new Scanner(new FileReader(path));
         // Read all file.
         while (in.hasNextLine()) {
-            this.content += in.nextLine();            
+            this.content += in.nextLine() + '\n';            
         }        
         return true;
     }
