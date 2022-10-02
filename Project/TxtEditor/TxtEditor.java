@@ -15,7 +15,7 @@ public class TxtEditor {
     private boolean enable;
 
     // Constructor
-    public void TxtEditor(){
+    public TxtEditor(){
         this.content = "";
         this.enable = false;
     }
@@ -41,7 +41,7 @@ public class TxtEditor {
         // Read all file.
         while (in.hasNextLine()) {
             this.content += in.nextLine();            
-        }
+        }        
         return true;
     }
 

@@ -11,7 +11,7 @@ public class MusicPlayer {
     private int bmp;
 
     // Constructor 
-    public void MusicPlayer(){
+    public MusicPlayer(){
         this.volume = 0;
         this.octave = 0;        
         this.actualInstrument = 0;
@@ -56,7 +56,6 @@ public class MusicPlayer {
     }
 
     // Play the music
-    // to-do
     public boolean play(){
         return true;
     }
