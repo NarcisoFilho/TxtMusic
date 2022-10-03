@@ -32,14 +32,14 @@ public class MusicPlayer extends Thread{
     private boolean isPaused;
 
     // Constructor 
-    public MusicPlayer(){
+    public MusicPlayer(float volMult){
     	isPlaying = false;
         isPaused = false;
     	this.song = new ArrayList<String>();
     	this.shouldStop = false;
     	this.volumeLevel = DEFAULT_VOLUME_LEVEL;
         this.volume = DEFAULT_VOLUME;
-        this.volumeMultiplier = 0.5f;
+        this.volumeMultiplier = volMult;
         this.octave = DEFAULT_OCTAVE;        
         this.actualInstrument = 0;
         this.bmp = 0;
@@ -172,11 +172,10 @@ public class MusicPlayer extends Thread{
     	volumeLevel = DEFAULT_VOLUME_LEVEL;
     	int counter = 0;
     	
-    	buildSong();
         Player player = new Player();
-    	for (int i = 0; i < song.size(); i++)
+    	for (int i = 0; i < text.length(); i++)
     	{
-    		playSong(player, song.get(i));
+    		playNote(player, parseNote(text.charAt(i)));
     		while (isPaused && !shouldStop)
     		{
     			if (!isPaused || shouldStop) //WTF? Don't know why this works
@@ -192,16 +191,33 @@ public class MusicPlayer extends Thread{
     public void save(File file, String text)
     {
     	this.text = text;
-    	File saveFile = new File(file.getAbsolutePath() + ".mid");
+    	buildSong();
+    	
+    	File saveFile;
+    	int index = file.getName().lastIndexOf(".");
+    	if (!(index == -1))
+    	{
+    		String extension = file.getName().substring(index);
+        	if (!(extension.compareTo(".mid") == 0))
+        		saveFile = new File(file.getAbsolutePath() + ".mid");
+        	else
+        		saveFile = file;
+    	}
+    	else
+    	{
+    		saveFile = new File(file.getAbsolutePath() + ".mid");
+    	}
     	String fullSong = new String();
+    	
+    	
     	for (int i = 0; i < song.size();i++)
     	{
     		fullSong += song.get(i);
     	}
     	Pattern pattern = new Pattern(fullSong);
-    	buildSong();
     	try {
 			org.jfugue.midi.MidiFileManager.savePatternToMidi(pattern, saveFile);
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -235,24 +251,27 @@ public class MusicPlayer extends Thread{
     	song.clear();
     	for (int i = 0; i < text.length(); i++){
             char c = text.charAt(i);
-            addNote(c);        
+            appendNoteToSong(parseNote(c));        
         }
     }
     
     // Play only one note.
-    protected boolean addNote(char note){
+    protected String parseNote(char note){
         
         switch (note)
         {
         case '!':// Change instrument to Agogo
         	setActualInstrument(0);
-        	break;
+        	lastNote = 'a';
+        	return " ";
         case ';':// Change instrument to Pan Flute
         	setActualInstrument(1);
-        	break;
+        	lastNote = 'a';
+        	return " ";
         case ',':// Change instrument to Church_Organ
         	setActualInstrument(2);     
-        	break;
+        	lastNote = 'a';
+        	return " ";
         case 'O':// Change instrument to Harpsichord
         case 'o':
         case 'I':
@@ -260,11 +279,13 @@ public class MusicPlayer extends Thread{
         case 'U':
         case 'u':
         	setActualInstrument(3);
-        	break;
+        	lastNote = 'a';
+        	return " ";
         case '\r':
         case '\n':// Change instrument to Tubular_Bells
         	setActualInstrument(4); 
-        	break;
+        	lastNote = 'a';
+        	return " ";
         case '0':// Change instrument. Number + Note
         case '1':
         case '2':
@@ -289,7 +310,8 @@ public class MusicPlayer extends Thread{
                      setActualInstrument(newInstrument);
                  }
              }
-        	break;
+             lastNote = 'a';
+             return " ";
         case 'A':
         case 'B':
         case 'C':
@@ -297,8 +319,8 @@ public class MusicPlayer extends Thread{
         case 'E':
         case 'F':
         case 'G':
-        	appendNoteToSong(note);
-        	break;
+        	lastNote = note;
+        	return formNoteString(note);
         case 'a':
         case 'b':
         case 'c':
@@ -309,87 +331,42 @@ public class MusicPlayer extends Thread{
         	if (lastNote >= 'A' && lastNote <= 'G')
         	{
         		note = lastNote;
-        		appendNoteToSong(note);
+        		lastNote = note;
+        		return formNoteString(note);
         	}
         	break;
         case '?':// Increase octave
+        	lastNote = 'a';
         	increaseOctave();
-        	break;
+        	return " ";
         case ' ':// Double volume
+        	lastNote = 'a';
         	increaseVolume();
-        	break;
+        	return " ";
         default:
         	if (lastNote >= 'A' && lastNote <= 'G')
         	{
         		note = lastNote;
-        		appendNoteToSong(note);
+        		lastNote = note;
+        		return formNoteString(note);
         	}
-        	break;
+        	lastNote = 'a';
+        	return " ";
         }
-        // Change instrument to Agogo
-        /*if (note == '!')
-            setActualInstrument(0);
-        // Change instrument to Pan Flute                              
-        else if (note == ';')
-            setActualInstrument(1);
-        // Change instrument to Church_Organ
-        else if (note == ',')
-            setActualInstrument(2);     
-        // Change instrument to Harpsichord
-        else if (note == 'O' || note == 'o' || note == 'I' || note == 'i' || note == 'U' || note == 'u')
-            setActualInstrument(3);
-        // Change instrument to Tubular_Bells
-        // Not working.
-        else if (note == '\r' || note == '\n')
-        setActualInstrument(4); 
-        // Change instrument. Number + Note
-        else if (note == '0' || note == '1' || note == '2' || note == '3' || note == '4' || note == '5'
-                || note == '6' || note == '7' || note == '8' || note == '9'){
-                    int newInstrument = getActualInstrument() + Character.getNumericValue(note);
-                    if (newInstrument < 5)
-                        setActualInstrument(newInstrument);                        
-                    else{
-                        newInstrument -= 5;  
-                        if(newInstrument < 5)
-                            setActualInstrument(newInstrument);
-                        else{
-                            newInstrument -= 5; 
-                            setActualInstrument(newInstrument);
-                        }
-                    }                     
-                }
-        // Increase octave
-        else if (note == '?')
-            // todo!
-            this.octave += 1;   
-        // Double volume
-        else if (note == ' ')
-            // todo!
-            this.volume *= 2;
-        // Repeat last note or pause music.        
-        else
-            // Repeat last note.
-            if (lastNote == 'A' || lastNote == 'B' || lastNote == 'C' || lastNote == 'D' 
-                || lastNote == 'E' || lastNote == 'F' || lastNote == 'G')
-                player.play(instruments.get(getActualInstrument()) + String.valueOf(lastNote));
-            // Pause music.
-            else
-                pause();   
-        // Play the note.   
-        player.play(instruments.get(getActualInstrument()) + String.valueOf(note));
-        // Store last note.
-        */
-        lastNote = note;
-        return true;
+        return " ";
     }
     
-    private void appendNoteToSong(int note)
+    private String formNoteString(int note)
     {
-    	System.out.println("Vol: " + Integer.toString(volume));
-    	song.add(" " + (getVolumeString() + instruments.get(getActualInstrument()) + Character.toString(note) + Integer.toString(octave)));
+    	return " " + (getVolumeString() + instruments.get(getActualInstrument()) + Character.toString(note) + Integer.toString(octave));
     }
     
-    private void playSong(Player player, String note)
+    private void appendNoteToSong(String note)
+    {
+    	song.add(note);
+    }
+    
+    private void playNote(Player player, String note)
     {
     	player.play(note);
     }

@@ -41,6 +41,7 @@ public class MainWindow extends JFrame {
 	private JFileChooser fileChooser;
 	private JTextArea textArea;
 	private JSlider sliderVolume;
+	JButton btnMute;
 	private Controller controller;
 	
 	private WindowEventListener playEvListener;
@@ -163,7 +164,7 @@ public class MainWindow extends JFrame {
 		Component horizontalStrut_2 = Box.createHorizontalStrut(15);
 		horizontalBox_4.add(horizontalStrut_2);
 		
-		JButton btnMute = new JButton("");
+		btnMute = new JButton("");
 		btnMute.setIcon(new ImageIcon(MainWindow.class.getResource("/rsrc/muteButton.png")));
 		horizontalBox_4.add(btnMute);
 		muteEvListener = new WindowEventListener("mute", this);
@@ -197,12 +198,28 @@ public class MainWindow extends JFrame {
 	protected void setVolume()
 	{
 		int volume = sliderVolume.getValue();
+		if (volume > 0)
+		{
+			btnMute.setIcon(new ImageIcon(MainWindow.class.getResource("/rsrc/muteButton.png")));
+		}
 		controller.setVolume(volume);
 	}
 	
 	protected void mute()
 	{
-		controller.mute();
+		if (controller.getVolumeMultiplier() > 0.01f)
+		{
+			controller.mute(true);	
+			sliderVolume.setValue(0);
+			btnMute.setIcon(new ImageIcon(MainWindow.class.getResource("/rsrc/muteButtonMute.png")));
+		}
+		else
+		{
+			System.out.println(controller.getPreviousVolume());
+			controller.mute(false);
+			sliderVolume.setValue((int)(controller.getPreviousVolume() * 100));
+			btnMute.setIcon(new ImageIcon(MainWindow.class.getResource("/rsrc/muteButton.png")));
+		}
 	}
 	
 	protected void load()

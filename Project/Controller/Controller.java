@@ -10,6 +10,8 @@ public class Controller
 {
 	private MainWindow mainGUI;
 	private MusicPlayer player;
+	private float volumeMultiplier;
+	private float previousVolume;
 	
 	/*public static void main(String[] args) 
 	{
@@ -28,8 +30,8 @@ public class Controller
 	
 	public Controller()
 	{
-		player = new MusicPlayer();
-		player = new MusicPlayer();
+		volumeMultiplier = 0.5f;
+		previousVolume = 0.5f;
 	}
 	
 	public void setMainGUI(MainWindow mainGUI)
@@ -41,7 +43,7 @@ public class Controller
 	{
 		if (player == null)
 		{
-			player = new MusicPlayer();
+			player = new MusicPlayer(volumeMultiplier);
 			player.play(mainGUI.getText());
 		}
 		else if (player.getIsPlaying())
@@ -54,7 +56,7 @@ public class Controller
 		}
 		else
 		{
-			player = new MusicPlayer();
+			player = new MusicPlayer(volumeMultiplier);
 			player.play(mainGUI.getText());
 		}
 	}
@@ -62,29 +64,54 @@ public class Controller
 	public void pause()
 	{
 		System.out.println("pause");
-		player.pause();
+		if (player != null)
+			player.pause();
 	}
 	
 	public void stop()
 	{
 		System.out.println("stop");
-		player.stopPlayback();
+		if (player != null)
+			player.stopPlayback();
 	}
 	
 	public void setVolume(int volume)
 	{
+		volumeMultiplier = (float)volume/100.0f;
 		System.out.println("volume: " + Integer.toString(volume));
-		player.setVolumeMultiplier((float)volume/100.0f);
+		if (player != null)
+			player.setVolumeMultiplier(volumeMultiplier);
 	}
 	
-	public void mute()
+	public void mute(boolean state)
 	{
-		System.out.println("mute");
+		if (state)
+		{
+			previousVolume = volumeMultiplier;
+			volumeMultiplier = 0.0f;
+		}
+		else
+		{
+			volumeMultiplier = previousVolume;
+		}
+		if (player != null)
+			player.setVolumeMultiplier(volumeMultiplier);
 	}
 	
 	public void save(File file)
 	{
+		player = new MusicPlayer(volumeMultiplier);
 		player.save(file, mainGUI.getText());
 		System.out.println("Save: " + file.getName());
+	}
+	
+	public float getVolumeMultiplier()
+	{
+		return volumeMultiplier;
+	}
+	
+	public float getPreviousVolume()
+	{
+		return previousVolume;
 	}
 }
