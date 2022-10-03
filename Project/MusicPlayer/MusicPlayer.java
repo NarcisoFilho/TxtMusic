@@ -356,7 +356,7 @@ public class MusicPlayer extends Thread{
         return " ";
     }
     
-    private String formNoteString(int note)
+    private String formNoteString(char note)
     {
     	return " " + (getVolumeString() + instruments.get(getActualInstrument()) + Character.toString(note) + Integer.toString(octave));
     }

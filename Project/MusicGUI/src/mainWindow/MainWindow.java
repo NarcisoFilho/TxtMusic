@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -230,7 +231,7 @@ public class MainWindow extends JFrame {
 			try {
 				FileInputStream is = new FileInputStream(file);
 				try {
-					setText(new String(is.readAllBytes()));
+					setText(new String(Files.readAllBytes(file.toPath())));
 					is.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -243,6 +244,7 @@ public class MainWindow extends JFrame {
 			fileChooser.setSelectedFile(null);
 		}
 	}
+
 	
 	protected void save()
 	{

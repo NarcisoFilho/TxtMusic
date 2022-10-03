@@ -49,7 +49,7 @@ public class TxtEditor {
     public boolean saveInTxtFile(String path) throws IOException{
         Path filePath = Paths.get(path);
         // Write in the file.
-        Files.writeString(filePath, this.content);
+        //Files.writeString(filePath, this.content);
         return true;
     }
 
