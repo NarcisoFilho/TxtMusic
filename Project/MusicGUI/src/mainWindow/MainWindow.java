@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import controller.Controller;
+import Controller.Controller;
 
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
@@ -172,7 +172,7 @@ public class MainWindow extends JFrame {
 		loadEvListener = new WindowEventListener("load", this);
 		saveEvListener = new WindowEventListener("save", this);
 	}
-	
+
 	public String getText()
 	{
 		return textArea.getText();

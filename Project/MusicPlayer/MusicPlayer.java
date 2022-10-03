@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import org.jfugue.player.Player;
 
 public class MusicPlayer {
+	private char lastNote;
     private int volume;
+    private int totalVolume;
     private int octave; 
     private ArrayList<String> instruments;
     private int actualInstrument;
@@ -13,6 +15,7 @@ public class MusicPlayer {
     // Constructor 
     public MusicPlayer(){
         this.volume = 1;
+        this.totalVolume = 100;
         this.octave = 1;        
         this.actualInstrument = 0;
         this.bmp = 0;
@@ -29,7 +32,12 @@ public class MusicPlayer {
     protected int getVolume(){
         return this.volume;
     }
-
+    
+    public void setVolumeMultiplier(float volume) {
+		// TODO Auto-generated method stub
+		
+	}
+    
     protected boolean setVolume(int volume){
         this.volume = volume;
         return true;
@@ -64,6 +72,7 @@ public class MusicPlayer {
 
     // Play the music
     public boolean play(String text){        
+    	setActualInstrument(0);
         for (int i = 0; i < text.length(); i++){
             char c = text.charAt(i);
             playNote(c);            
@@ -84,9 +93,80 @@ public class MusicPlayer {
     // Play only one note.
     protected boolean playNote(char note){
         Player player = new Player();
-        char lastNote = ' ';
+        
+        switch (note)
+        {
+        case '!':
+        	setActualInstrument(0);
+        	break;
+        case ';':
+        	setActualInstrument(1);
+        	break;
+        case ',':
+        	setActualInstrument(2);     
+        	break;
+        case 'O':
+        case 'o':
+        case 'I':
+        case 'i':
+        case 'U':
+        case 'u':
+        	setActualInstrument(3);
+        	break;
+        case '\r':
+        case '\n':
+        	setActualInstrument(4); 
+        	break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        	 int newInstrument = getActualInstrument() + Character.getNumericValue(note);
+             if (newInstrument < 5)
+                 setActualInstrument(newInstrument);                        
+             else
+             {
+                 newInstrument -= 5;  
+                 if(newInstrument < 5)
+                     setActualInstrument(newInstrument);
+                 else
+                 {
+                     newInstrument -= 5; 
+                     setActualInstrument(newInstrument);
+                 }
+             }
+        	break;
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+        case 'G':
+        	player.play(instruments.get(getActualInstrument()) + String.valueOf(note));
+        	break;
+        case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
+        case 'g':
+        	if (lastNote >= 'A' && lastNote <= 'G')
+        	{
+        		note = lastNote;
+        		player.play(instruments.get(getActualInstrument()) + String.valueOf(lastNote));
+        	}
+        	
+        }
         // Change instrument to Agogo
-        if (note == '!')
+        /*if (note == '!')
             setActualInstrument(0);
         // Change instrument to Pan Flute                              
         else if (note == ';')
@@ -134,9 +214,10 @@ public class MusicPlayer {
             // Pause music.
             else
                 pause();   
-        // Play the note.         
+        // Play the note.   
         player.play(instruments.get(getActualInstrument()) + String.valueOf(note));
         // Store last note.
+        */
         lastNote = note;
         return true;
     }
