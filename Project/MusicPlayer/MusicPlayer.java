@@ -1,12 +1,23 @@
 package MusicPlayer;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import org.jfugue.pattern.Pattern;
 import org.jfugue.player.Player;
 
-public class MusicPlayer {
-	final int MAX_VOLUME = 4;
-	final int DEFAULT_VOLUME = 1;
+public class MusicPlayer extends Thread{
+	private final int MAX_VOLUME = 4;
+	private final int DEFAULT_VOLUME = 32;
+	private final int DEFAULT_VOLUME_LEVEL = 1;
+	private final int MIN_OCTAVE = 3;
+	private final int MAX_OCTAVE = 8;
+	private final int DEFAULT_OCTAVE = 5;
+	private enum e_operation {play, pause, stop};
 	
+	private e_operation operation;
+	private String text;
 	private char lastNote;
 	private int volumeLevel;
     private int volume;
@@ -15,13 +26,21 @@ public class MusicPlayer {
     private ArrayList<String> instruments;
     private int actualInstrument;
     private int bmp;
+    private ArrayList<String> song;
+    private boolean shouldStop;
+    private boolean isPlaying;
+    private boolean isPaused;
 
     // Constructor 
     public MusicPlayer(){
-    	this.volumeLevel = 1;
-        this.volume = 16;
-        this.volumeMultiplier = 1.0f;
-        this.octave = 1;        
+    	isPlaying = false;
+        isPaused = false;
+    	this.song = new ArrayList<String>();
+    	this.shouldStop = false;
+    	this.volumeLevel = DEFAULT_VOLUME_LEVEL;
+        this.volume = DEFAULT_VOLUME;
+        this.volumeMultiplier = 0.5f;
+        this.octave = DEFAULT_OCTAVE;        
         this.actualInstrument = 0;
         this.bmp = 0;
         this.instruments = new ArrayList<>();
@@ -77,8 +96,15 @@ public class MusicPlayer {
         return this.octave;
     }
 
-    protected boolean setOctave(int octave){
-        this.octave = octave;
+    protected boolean increaseOctave(){
+        if (octave < MAX_OCTAVE)
+        {
+        	octave++;
+        }
+        else
+        {
+        	octave = MIN_OCTAVE;
+        }
         return true;
     }
 
@@ -99,37 +125,122 @@ public class MusicPlayer {
         this.bmp = bpm;
         return true;
     }
-
+    
+    public boolean getIsPlaying()
+    {
+    	return isPlaying;
+    }
+    
+    public boolean getIsPaused()
+    {
+    	return isPaused;
+    }
+    
     // Play the music
-    public boolean play(String text){        
-    	setActualInstrument(0);
-    	volume = 10;
-        for (int i = 0; i < text.length(); i++){
-            char c = text.charAt(i);
-            playNote(c);            
-        }       
+    public boolean play(String text){
+    	if (isPlaying)
+    	{
+    		System.out.println("Playing");
+    		if (isPaused)
+    		{
+    			isPaused = false;
+    			System.out.println("Resume");
+    		}
+    	}
+    	else
+    	{
+    			isPlaying = true;
+        		this.text = text;
+        		this.start();
+    	}
         return true;
     }
-
+    
+    @Override
+    public void run()
+    {
+    		startPlayback();
+    		isPlaying = false;
+    		return;
+    }
+    
+    private void startPlayback()
+    {
+    	setActualInstrument(0);
+    	octave = DEFAULT_OCTAVE;
+    	volume = DEFAULT_VOLUME;
+    	volumeLevel = DEFAULT_VOLUME_LEVEL;
+    	int counter = 0;
+    	
+    	buildSong();
+        Player player = new Player();
+    	for (int i = 0; i < song.size(); i++)
+    	{
+    		playSong(player, song.get(i));
+    		while (isPaused && !shouldStop)
+    		{
+    			if (!isPaused || shouldStop) //WTF? Don't know why this works
+    				break;
+    		}
+    		System.out.println("playing " + Integer.toString(counter));
+    		if (shouldStop)
+    			break;
+    	}
+    	return;
+    }
+    
+    public void save(File file, String text)
+    {
+    	this.text = text;
+    	File saveFile = new File(file.getAbsolutePath() + ".mid");
+    	String fullSong = new String();
+    	for (int i = 0; i < song.size();i++)
+    	{
+    		fullSong += song.get(i);
+    	}
+    	Pattern pattern = new Pattern(fullSong);
+    	buildSong();
+    	try {
+			org.jfugue.midi.MidiFileManager.savePatternToMidi(pattern, saveFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
     // Pause the music
     public boolean pause(){
-        return true;
+    	if (isPlaying)
+    	{
+    		isPaused = true;
+        	return true;
+    	}
+        return false;
     }
 
-    // Stop the music
-    public boolean stop(){
+    //Stop the music
+    public boolean stopPlayback(){
+    	shouldStop = true;
         return true;
     }
     
     private String getVolumeString()
     {
     	int vol = (int)((float)volume * volumeMultiplier);
-    	return ":CON(7, "+ Integer.toString(volume) + ") ";
+    	return ":CON(7, "+ Integer.toString(vol) + ") ";
     }
 
+    private void buildSong()
+    {
+    	song.clear();
+    	for (int i = 0; i < text.length(); i++){
+            char c = text.charAt(i);
+            addNote(c);        
+        }
+    }
+    
     // Play only one note.
-    protected boolean playNote(char note){
-        Player player = new Player();
+    protected boolean addNote(char note){
         
         switch (note)
         {
@@ -186,7 +297,7 @@ public class MusicPlayer {
         case 'E':
         case 'F':
         case 'G':
-        	playNoteFinal(note, player);
+        	appendNoteToSong(note);
         	break;
         case 'a':
         case 'b':
@@ -198,21 +309,20 @@ public class MusicPlayer {
         	if (lastNote >= 'A' && lastNote <= 'G')
         	{
         		note = lastNote;
-        		playNoteFinal(note, player);
+        		appendNoteToSong(note);
         	}
         	break;
         case '?':// Increase octave
-        	this.octave += 1;
+        	increaseOctave();
         	break;
         case ' ':// Double volume
         	increaseVolume();
-        	System.out.println("Vol: " + Integer.toString(volume));
         	break;
         default:
         	if (lastNote >= 'A' && lastNote <= 'G')
         	{
         		note = lastNote;
-        		playNoteFinal(note, player);
+        		appendNoteToSong(note);
         	}
         	break;
         }
@@ -273,8 +383,14 @@ public class MusicPlayer {
         return true;
     }
     
-    private void playNoteFinal(int note, Player player)
+    private void appendNoteToSong(int note)
     {
-    	player.play(getVolumeString() + instruments.get(getActualInstrument()) + String.valueOf(note));
+    	System.out.println("Vol: " + Integer.toString(volume));
+    	song.add(" " + (getVolumeString() + instruments.get(getActualInstrument()) + Character.toString(note) + Integer.toString(octave)));
+    }
+    
+    private void playSong(Player player, String note)
+    {
+    	player.play(note);
     }
 }

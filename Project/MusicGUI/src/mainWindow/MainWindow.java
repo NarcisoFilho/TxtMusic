@@ -23,6 +23,9 @@ import javax.swing.SwingConstants;
 import javax.swing.SpringLayout;
 import java.awt.GridLayout;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -167,8 +170,6 @@ public class MainWindow extends JFrame {
 		btnMute.addActionListener(muteEvListener);
 		
 		fileChooser = new JFileChooser();
-		FileNameExtensionFilter extensionFilter = new FileNameExtensionFilter("TXT File","txt");
-		fileChooser.setFileFilter(extensionFilter);
 		loadEvListener = new WindowEventListener("load", this);
 		saveEvListener = new WindowEventListener("save", this);
 	}
@@ -209,7 +210,19 @@ public class MainWindow extends JFrame {
 		File file = fileChooser.getSelectedFile();
 		if (file != null)
 		{
-			controller.load(file);
+			try {
+				FileInputStream is = new FileInputStream(file);
+				try {
+					setText(new String(is.readAllBytes()));
+					is.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			fileChooser.setSelectedFile(null);
 		}
 	}
@@ -226,6 +239,8 @@ public class MainWindow extends JFrame {
 	
 	protected void openFileChooser()
 	{
+		FileNameExtensionFilter extensionFilter = new FileNameExtensionFilter("TXT File","txt");
+		fileChooser.setFileFilter(extensionFilter);
 		fileChooser.removeActionListener(saveEvListener);
 		fileChooser.addActionListener(loadEvListener);
 		fileChooser.showOpenDialog(this);
@@ -233,9 +248,16 @@ public class MainWindow extends JFrame {
 	
 	protected void saveFileChooser()
 	{
+		FileNameExtensionFilter extensionFilter = new FileNameExtensionFilter("MIDI File","mid");
+		fileChooser.setFileFilter(extensionFilter);
 		fileChooser.removeActionListener(loadEvListener);
 		fileChooser.addActionListener(saveEvListener);
 		fileChooser.showOpenDialog(this);
+	}
+	
+	public void setText(String text)
+	{
+		textArea.setText(text);
 	}
 	
 }

@@ -8,8 +8,8 @@ import mainWindow.MainWindow;
 
 public class Controller 
 {
-	private MusicPlayer player;
 	private MainWindow mainGUI;
+	private MusicPlayer player;
 	
 	/*public static void main(String[] args) 
 	{
@@ -28,7 +28,8 @@ public class Controller
 	
 	public Controller()
 	{
-		this.player = new MusicPlayer();
+		player = new MusicPlayer();
+		player = new MusicPlayer();
 	}
 	
 	public void setMainGUI(MainWindow mainGUI)
@@ -38,7 +39,24 @@ public class Controller
 	
 	public void play()
 	{
-		player.play(mainGUI.getText());
+		if (player == null)
+		{
+			player = new MusicPlayer();
+			player.play(mainGUI.getText());
+		}
+		else if (player.getIsPlaying())
+		{
+			if (player.getIsPaused())
+			{
+				System.out.println("Sent resume");
+				player.play("");
+			}
+		}
+		else
+		{
+			player = new MusicPlayer();
+			player.play(mainGUI.getText());
+		}
 	}
 	
 	public void pause()
@@ -50,7 +68,7 @@ public class Controller
 	public void stop()
 	{
 		System.out.println("stop");
-		player.stop();
+		player.stopPlayback();
 	}
 	
 	public void setVolume(int volume)
@@ -64,13 +82,9 @@ public class Controller
 		System.out.println("mute");
 	}
 	
-	public void load(File file)
-	{
-		System.out.println("Load: " + file.getName());
-	}
-	
 	public void save(File file)
 	{
+		player.save(file, mainGUI.getText());
 		System.out.println("Save: " + file.getName());
 	}
 }
