@@ -56,7 +56,7 @@ public class Controller
 	public void setVolume(int volume)
 	{
 		System.out.println("volume: " + Integer.toString(volume));
-		player.setVolumeMultiplier((volume)/100.0f);
+		player.setVolumeMultiplier((float)volume/100.0f);
 	}
 	
 	public void mute()

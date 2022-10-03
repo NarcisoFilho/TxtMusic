@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import org.jfugue.player.Player;
 
 public class MusicPlayer {
+	final int MAX_VOLUME = 4;
+	final int DEFAULT_VOLUME = 1;
+	
 	private char lastNote;
+	private int volumeLevel;
     private int volume;
-    private int totalVolume;
+    private float volumeMultiplier;
     private int octave; 
     private ArrayList<String> instruments;
     private int actualInstrument;
@@ -14,8 +18,9 @@ public class MusicPlayer {
 
     // Constructor 
     public MusicPlayer(){
-        this.volume = 1;
-        this.totalVolume = 100;
+    	this.volumeLevel = 1;
+        this.volume = 16;
+        this.volumeMultiplier = 1.0f;
         this.octave = 1;        
         this.actualInstrument = 0;
         this.bmp = 0;
@@ -33,13 +38,38 @@ public class MusicPlayer {
         return this.volume;
     }
     
-    public void setVolumeMultiplier(float volume) {
-		// TODO Auto-generated method stub
-		
+    public void setVolumeMultiplier(float volumeMul) {
+    	this.volumeMultiplier = volumeMul;
 	}
     
-    protected boolean setVolume(int volume){
-        this.volume = volume;
+    protected boolean increaseVolume(){
+    	switch (volumeLevel)
+    	{
+    	case 0:
+    		volumeLevel = 1;
+    		volume = 16;
+    		break;
+    	case 1:
+    		volumeLevel = 2;
+    		volume = 32;
+    		break;
+    	case 2:
+    		volumeLevel = 3;
+    		volume = 64;
+    		break;
+    	case 3:
+    		volumeLevel = 4;
+    		volume = 127;
+    		break;
+    	case 4:
+    		volumeLevel = 0;
+    		volume = 0;
+    		break;
+    	default:
+    		volumeLevel = 0;
+    		volume = 0;
+    		break;
+    	}
         return true;
     }
    
@@ -73,6 +103,7 @@ public class MusicPlayer {
     // Play the music
     public boolean play(String text){        
     	setActualInstrument(0);
+    	volume = 10;
         for (int i = 0; i < text.length(); i++){
             char c = text.charAt(i);
             playNote(c);            
@@ -89,6 +120,12 @@ public class MusicPlayer {
     public boolean stop(){
         return true;
     }
+    
+    private String getVolumeString()
+    {
+    	int vol = (int)((float)volume * volumeMultiplier);
+    	return ":CON(7, "+ Integer.toString(volume) + ") ";
+    }
 
     // Play only one note.
     protected boolean playNote(char note){
@@ -96,16 +133,16 @@ public class MusicPlayer {
         
         switch (note)
         {
-        case '!':
+        case '!':// Change instrument to Agogo
         	setActualInstrument(0);
         	break;
-        case ';':
+        case ';':// Change instrument to Pan Flute
         	setActualInstrument(1);
         	break;
-        case ',':
+        case ',':// Change instrument to Church_Organ
         	setActualInstrument(2);     
         	break;
-        case 'O':
+        case 'O':// Change instrument to Harpsichord
         case 'o':
         case 'I':
         case 'i':
@@ -114,10 +151,10 @@ public class MusicPlayer {
         	setActualInstrument(3);
         	break;
         case '\r':
-        case '\n':
+        case '\n':// Change instrument to Tubular_Bells
         	setActualInstrument(4); 
         	break;
-        case '0':
+        case '0':// Change instrument. Number + Note
         case '1':
         case '2':
         case '3':
@@ -149,7 +186,7 @@ public class MusicPlayer {
         case 'E':
         case 'F':
         case 'G':
-        	player.play(instruments.get(getActualInstrument()) + String.valueOf(note));
+        	playNoteFinal(note, player);
         	break;
         case 'a':
         case 'b':
@@ -161,9 +198,23 @@ public class MusicPlayer {
         	if (lastNote >= 'A' && lastNote <= 'G')
         	{
         		note = lastNote;
-        		player.play(instruments.get(getActualInstrument()) + String.valueOf(lastNote));
+        		playNoteFinal(note, player);
         	}
-        	
+        	break;
+        case '?':// Increase octave
+        	this.octave += 1;
+        	break;
+        case ' ':// Double volume
+        	increaseVolume();
+        	System.out.println("Vol: " + Integer.toString(volume));
+        	break;
+        default:
+        	if (lastNote >= 'A' && lastNote <= 'G')
+        	{
+        		note = lastNote;
+        		playNoteFinal(note, player);
+        	}
+        	break;
         }
         // Change instrument to Agogo
         /*if (note == '!')
@@ -220,5 +271,10 @@ public class MusicPlayer {
         */
         lastNote = note;
         return true;
+    }
+    
+    private void playNoteFinal(int note, Player player)
+    {
+    	player.play(getVolumeString() + instruments.get(getActualInstrument()) + String.valueOf(note));
     }
 }
